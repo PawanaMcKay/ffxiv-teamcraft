@@ -28,6 +28,16 @@ const COSMIC_EXPLORATION_ACTION_NAMES = new Set<string>(['MaterialMiracle2', 'St
  */
 const SPECIALIST_ACTION_NAMES = new Set<string>(['CarefulObservation2', 'HeartAndSoul2', 'QuickInnovation2']);
 
+/**
+ * Class names of actions, that are technically safe by the recipe's starting-state
+ * check, but rely on random crafting conditions (e.g. "Good"/"Excellent") to actually be
+ * used reiably in practice. Excluded from the default selection, but still manually selectable
+ * by the user
+ */
+const DEFAULT_EXCLUDED_UNRELIABLE_ACTION_NAMES = new Set<string>([
+  'TricksOfTheTrade2'
+]);
+
 /** The three high-level phases the popup walks through. */
 type SolverPhase = 'selection' | 'running' | 'done';
 
@@ -155,12 +165,21 @@ export class SolverPopupComponent extends DialogComponent implements OnInit, OnD
    * Cosmic Exploration and Specialist actions, which are opt-in only.
    */
   private initializeDefaultSelection(): void {
+    const sim = new this.simulator.Simulation(this.recipe, [], this.stats, this.hqIngredients);
+    const baselineResult = sim.run(true, Infinity, true);
+    const baselineSimulation = baselineResult.simulation;
+    
     for (const category of this.categories) {
       for (const action of category.actions) {
         if (this.isLevelLocked(action)) continue;
+
         const name = this.actionName(action);
         if (COSMIC_EXPLORATION_ACTION_NAMES.has(name)) continue;
         if (SPECIALIST_ACTION_NAMES.has(name)) continue;
+        if (DEFAULT_EXCLUDED_UNRELIABLE_ACTION_NAMES.has(name)) continue;
+
+        if ((action as any).getSuccessRate?.(baselineSimulation) < 100) continue;
+
         this.selectedActionNames.add(name);
       }
     }
@@ -218,19 +237,20 @@ export class SolverPopupComponent extends DialogComponent implements OnInit, OnD
         )
         .subscribe({
           next: ({ progress, result, reliablity }) => {
-           if (progress) {
-            this.depth = progress.depth;
-            this.bestQuality = progress.bestQuality;
-            this.bestSuccess = progress.bestSuccess;
-            this.qualityComplete = progress.qualityComplete;
-           } 
-           if (result) {
-            this.resultActions = result;
-            this.reliablity = reliablity;
-            this.running = false;
-            this.phase = 'done';
-           }
-           this.cd.markForCheck();
+            console.log('[SolverPopupComponent] event received', { progress, result });
+            if (progress) {
+              this.depth = progress.depth;
+              this.bestQuality = progress.bestQuality;
+              this.bestSuccess = progress.bestSuccess;
+              this.qualityComplete = progress.qualityComplete;
+            } 
+            if (result) {
+              this.resultActions = result;
+              this.reliablity = reliablity;
+              this.running = false;
+              this.phase = 'done';
+            }
+            this.cd.markForCheck();
           },
           error: (err) => {
             this.error = true;
