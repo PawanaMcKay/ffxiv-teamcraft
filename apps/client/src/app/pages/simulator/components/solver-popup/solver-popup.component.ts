@@ -13,6 +13,7 @@ import { NzTagModule } from "ng-zorro-antd/tag";
 import { SimulationReliabilityReport, SimulationService } from "../../../../core/simulation/simulation.service";
 import { ActionCategory } from '../../model/action-category';
 import { SettingsService } from "apps/client/src/app/modules/settings/settings.service";
+import { NzIconModule } from "ng-zorro-antd/icon";
 
 /**
  * Class names (as reported by `action.constructor.name`) of Cosmic Exploration-only
@@ -51,6 +52,7 @@ type SolverPhase = 'selection' | 'running' | 'done';
     NzProgressModule,
     NzButtonModule,
     NzTagModule,
+    NzIconModule,
     TranslateModule,
     ActionComponent
   ]
