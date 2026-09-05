@@ -1186,7 +1186,9 @@
       "Valid_rotation_found": "Eine valide Rotation wurde gefunden, optimiere...",
       "Done": "Rotation fertig",
       "Apply": "Nutze diese Rotation",
-      "Quality_maxed": "Maximale Qualität erreicht"
+      "Quality_maxed": "Maximale Qualität erreicht",
+      "Select_actions_hint": "Wähle die Aktionen aus, die für den Löser genutzt werden sollen",
+      "Start": "Beginne Lösen"
     },
     "COMMUNITY_ROTATIONS": {
       "Title": "Community-Rotationen",
